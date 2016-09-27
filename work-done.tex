@@ -1,0 +1,180 @@
+\chapter{Work Done}
+
+\section{Toolkit}
+
+\subsection{NLTK}
+NLTK has been called “a wonderful tool for teaching, and working in, computational linguistics using Python,” and “an amazing library to play with natural language.”\\[0.5cm]
+
+NLTK is a leading platform for building Python programs to work with human language data. It provides easy-to-use interfaces to over 50 corpora and lexical resources such as WordNet, along with a suite of text processing libraries for classification, tokenization, stemming, tagging, parsing, and semantic reasoning, wrappers for industrial-strength NLP libraries.\\[1.0cm]
+
+\section{Python packages}
+
+\subsection{random}
+This module implements pseudo-random number generators for various distributions.
+
+For integers, uniform selection from a range. For sequences, uniform selection of a random element, a function to generate a random permutation of a list in-place, and a function for random sampling without replacement.\\
+
+
+\subsection{re}
+
+This module provides regular expression matching operations similar to those found in Perl. Both patterns and strings to be searched can be Unicode strings as well as 8-bit strings.
+
+Regular expressions use the backslash character ('{\textbackslash}') to indicate special forms or to allow special characters to be used without invoking their special meaning. This collides with Python’s usage of the same character for the same purpose in string literals; for example, to match a literal backslash, one might have to write '{\textbackslash\textbackslash\textbackslash\textbackslash}' as the pattern string, because the regular expression must be {\textbackslash\textbackslash}, and each backslash must be expressed as {\textbackslash\textbackslash} inside a regular Python string literal.
+
+The solution is to use Python’s raw string notation for regular expression patterns; backslashes are not handled in any special way in a string literal prefixed with 'r'. So {r"\textbackslash n"} is a two-character string containing '{\textbackslash}' and 'n', while "{\textbackslash n}" is a one-character string containing a newline. Usually patterns will be expressed in Python code using this raw string notation.
+
+\section{Implementation}
+
+Since there have been various implementations, more or less similar to the original one. Emacs ships with an ELIZA-type program built in. The CIA even experimented with computer-aided interrogation of officers using a very similar, but rather more combative, version of the program.\\
+\\
+My implementation is based on one originally written by Joe Strout. I have updated it significantly to use a more modern and idiomatic form of Python, but the text patterns and  data structures are copied essentially verbatim.\\
+\\
+This is fundamentally a pattern matching program, in this most of the source code is taken up by a dictionary called and a list of lists . \\
+ \\
+Dictionary maps first-person pronouns to second-person pronouns and vice-versa. It is used to “reflect” a statement back against the user.\\
+\\
+Pairs is made up of a list of lists where the first element is a regular expression that matches the user’s statements and the second element is a list of potential responses. Many of the potential responses contain placeholders that can be filled in with fragments to echo the user’s statements.\\
+\\
+main  is the entry point of the program. Let’s take a closer look at it.\\
+
+\begin{lstlisting}
+def main():
+    print "Hello. How are you feeling today?"
+
+    while True:
+        statement = raw_input("> ")
+        print analyze(statement)
+
+        if statement == "quit":
+            break
+\end{lstlisting}   
+
+
+First, we print the initial prompt, then we enter a loop of asking the user for input and passing what the user says to the analyze  function to get the therapist’s response. If at any point the user types “quit”, we break out of the loop and the program exits.\\
+
+Let’s see what’s going on in analyze .\\
+
+
+\begin{lstlisting}
+def analyze(statement):
+    for pattern, responses in psychobabble:
+        match = re.match(pattern, statement.rstrip(".!"))
+        if match:
+            response = random.choice(responses)
+            return response.format(*[reflect(g) for g in match.groups()])
+
+\end{lstlisting}
+
+
+We iterate through the regular expressions in the psychobabble  array, trying to match each one with the user’s statement, from which we have stripped the final punctuation. If we find a match, we choose a response template randomly from the list of possible responses associated with the matching pattern. Then we interpolate the match groups from the regular expression into the response string, calling the reflect  function on each match group first.\\[0.5cm]
+
+There is one syntactic oddity to note here. When we use the list comprehension to generate a list of reflected match groups, we explode the list with the asterisk (*) character before passing it to the string’s format  method. Format expects a series of positional arguments corresponding to the number of format placeholders – {0}, {1}, etc. – in the string. A list or a tuple can be exploded into positional arguments using a single asterisk. Double asterisks (**) can be used to explode dictionaries into keyword arguments.\\[0.5cm]
+
+Now let’s examine the reflect  function.
+
+\begin{lstlisting}
+def reflect(fragment):
+    tokens = fragment.lower().split()
+    for i, token in enumerate(tokens):
+        if token in reflections:
+            tokens[i] = reflections[token]
+    return ' '.join(tokens)
+\end{lstlisting}
+
+There is nothing too complicated going on in it. First, we make the statement lowercase, then we tokenize it by splitting on whitespace characters. We iterate through the list of tokens and, if the token exists in our reflections  dictionary, we replace it with the value from the dictionary. So “I” becomes “you”, “your” becomes “my”, etc.\\[1.0cm]
+
+This was all for one type of chatbot. We included in this chatbot five datasets consisting rudechat, elizachat, casualchat, warchat, spiritualchat. Then we randomized the result of all five using random module randint function.\\[0.5cm]
+
+
+\begin{lstlisting}
+def main():
+
+  while True:
+        statement = raw_input("> ")
+        x = random.randint(1,5)
+        if x == 1 :
+            print eliza_chat(statement)
+
+        elif x == 2:
+            print rude_chat(statement)
+
+        elif x == 3 :
+            print suntsu_chat(statement)
+
+        elif x == 4:
+            print iesha_chat(statement)
+
+        else:
+            print zen_chat(statement)
+
+        if statement == "quit":
+            break
+            
+\end{lstlisting}
+
+This deviates mood of person who is chatting and able to answer more questions.\\[0.5cm]
+
+
+\pagebreak
+\section{Test}
+
+Sample chating to our bot is the following.\\[2.5cm]
+1.
+\begin{lstlisting}
+=============================================================
+
+
+Talk to the program by typing in plain English, using normal upper-
+and lower-case letters and punctuation.  Enter "quit" when done.
+=============================================================
+Hello.  How are you feeling today?
+> good
+Form is emptiness, and emptiness is form.
+> why
+Very interesting.
+> still interesting
+Random talk is useless.
+> I want that
+It is the rule in war.
+> good to talk you
+I see.  And what does that tell you?
+> information
+One may know how to conquer without being able to do it.
+> I see
+Can you elaborate on that?
+> no
+Very interesting.
+> 
+\end{lstlisting}
+\pagebreak
+
+2.
+\begin{lstlisting}
+=============================================================
+
+
+Talk to the program by typing in plain English, using normal upper-
+and lower-case letters and punctuation.  Enter "quit" when done.
+=============================================================
+Hello.  How are you feeling today?
+> not good
+I'm getting bored here. Become more interesting.
+> How I can 
+How do you suppose?
+> I can suppose by your answers
+One may know how to conquer without being able to do it.
+> yes
+How do you feel when you say that?
+> bad
+do u like anime??
+> yes
+I'm getting bored here. Become more interesting.
+> quit
+Good-bye.
+\end{lstlisting}
+\vspace{1.0in}
+During test we evaluated that this machine can hold up some time until the machine's true lack of understanding became apparent.\\
+So main target of chatbot is attempt to fool humans, and that is fulfilling at some extent.\\
+Clearly the results will improve with the quality and quantity of training data and the
+sophistication of heuristic rules. Therefore, over time I hope to add to the amount of statistical
+training data as well as develop a more comprehensive set of pattern matching rules. \\
